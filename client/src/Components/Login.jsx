@@ -1,18 +1,60 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import loginbg from '../assets/login-bg.jpg';
+
 export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    if (!email || !password) {
+      setErrorMessage('Please fill in all fields.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store session data and navigate to home
+        sessionStorage.setItem('user', JSON.stringify(data));
+        navigate('/home');
+      } else {
+        // Display error message
+        setErrorMessage(data.message || 'Invalid login credentials.');
+      }
+    } catch (error) {
+      setErrorMessage('An error occurred. Please try again later.');
+    }
+  };
+
   return (
     <div
       className="flex min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: "url('https://img.freepik.com/free-vector/geometric-gradient-futuristic-background_23-2149116406.jpg')" }}
+      style={{ backgroundImage: `url(${loginbg})` }}
     >
       <div className="flex w-full items-center justify-center bg-black bg-opacity-50 px-6 py-12">
         <div className="flex flex-col lg:flex-row lg:gap-12 w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Left Side: Text Section */}
           <div className="flex flex-1 flex-col justify-center bg-indigo-700 p-8 text-white">
-            <h1 className="text-4xl font-bold leading-tight">
+            <h1 className="text-4xl font-bold leading-tight font-[poppins]">
               Welcome to SoulSupport!
             </h1>
-            <p className="mt-4 text-lg">
-            A one stop platform to tackle all your mental problems !!
+            <p className="mt-4 text-lg font-[Merriweather]">
+              A one stop platform to tackle all your mental problems !!
             </p>
           </div>
 
@@ -30,7 +72,7 @@ export default function Login() {
             </div>
 
             <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-              <form action="#" method="POST" className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-900">
                     Email address
@@ -40,6 +82,8 @@ export default function Login() {
                       id="email"
                       name="email"
                       type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                       autoComplete="email"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
@@ -63,12 +107,18 @@ export default function Login() {
                       id="password"
                       name="password"
                       type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                       autoComplete="current-password"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
                     />
                   </div>
                 </div>
+
+                {errorMessage && (
+                  <p className="text-sm text-red-500">{errorMessage}</p>
+                )}
 
                 <div>
                   <button
@@ -81,10 +131,10 @@ export default function Login() {
               </form>
 
               <p className="mt-6 text-center text-sm text-gray-500">
-              Don't have an account?{' '}
-                <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                Don't have an account?{' '}
+                <Link to="/signup" className="font-semibold text-indigo-600 hover:text-indigo-500">
                   Sign up
-                </a>
+                </Link>
               </p>
             </div>
           </div>
