@@ -29,8 +29,8 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // Store session data and navigate to home
-        sessionStorage.setItem('user', JSON.stringify(data));
+        // Save token to localStorage
+        localStorage.setItem('soul_authToken', data.token);
         navigate('/home');
       } else {
         // Display error message
@@ -86,7 +86,7 @@ export default function Login() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       autoComplete="email"
-                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+                      className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
                     />
                   </div>
                 </div>
@@ -111,7 +111,7 @@ export default function Login() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       autoComplete="current-password"
-                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+                      className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
                     />
                   </div>
                 </div>
