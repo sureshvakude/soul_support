@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 import signupbg from "../assets/login-bg.jpg";
 
@@ -52,7 +53,7 @@ export default function Signup() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/user/signup", {
+      const response = await fetch(`${serverUrl}/api/user/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import * as pdfjsLib from "pdfjs-dist";
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 // Set the workerSrc globally for pdfjsLib to use the same version
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
@@ -14,7 +15,7 @@ const Book = () => {
     // Fetch the PDF files from the API
     const fetchPdfs = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/pdfs"); // Replace with your API endpoint
+        const response = await axios.get(`${serverUrl}/api/pdfs`); // Replace with your API endpoint
         setPdfs(response.data.pdfs || []);
         setLoading(false);
       } catch (error) {
@@ -65,7 +66,7 @@ const Book = () => {
     const previews = {};
     for (const pdf of pdfs) {
       try {
-        const previewImage = await renderPdfPreview(`http://localhost:3000${pdf}`);
+        const previewImage = await renderPdfPreview(`${serverUrl}${pdf}`);
         previews[pdf] = previewImage;
       } catch (error) {
         console.error("Error generating PDF preview:", error);
@@ -105,7 +106,7 @@ const Book = () => {
               </h2>
               <div className="flex flex-row items-center gap-3">
                 <a
-                  href={`http://localhost:3000${pdf}`}
+                  href={`${serverUrl}${pdf}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 underline mt-2 block"
@@ -114,7 +115,7 @@ const Book = () => {
                 </a>
                 <span className="text-gray-500">|</span>
                 <a
-                  href={`http://localhost:3000${pdf}`}
+                  href={`${serverUrl}${pdf}`}
                   download
                   className="text-green-500 underline mt-2 block"
                 >

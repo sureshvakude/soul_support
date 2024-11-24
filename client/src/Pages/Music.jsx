@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 const MusicGrid = () => {
   const [musics, setMusics] = useState([]);
@@ -8,7 +9,7 @@ const MusicGrid = () => {
   useEffect(() => {
     const fetchMusics = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/musics"); // Replace with your API endpoint
+        const response = await axios.get(`${serverUrl}/api/musics`); // Replace with your API endpoint
         setMusics(response.data.musics || []); // Assuming the response contains 'musics' array
         setLoading(false);
       } catch (error) {
@@ -34,7 +35,7 @@ const MusicGrid = () => {
               key={index}
               className="music-item p-4 bg-gray-100 border border-gray-200 rounded-md shadow-sm hover:shadow-md"
             >
-              <a href={`http://localhost:3000${music}`} target="_blank" rel="noopener noreferrer">
+              <a href={`${serverUrl}${music}`} target="_blank" rel="noopener noreferrer">
                 <img
                   src="https://picsum.photos/seed/cool/150" // Placeholder image for now
                   alt={`Track ${index + 1}`}
@@ -46,7 +47,7 @@ const MusicGrid = () => {
               {/* Music Player */}
               <div className="mt-3">
                 <audio controls className="w-full mt-2">
-                  <source src={`http://localhost:3000${music}`} type="audio/mpeg" />
+                  <source src={`${serverUrl}${music}`} type="audio/mpeg" />
                   Your browser does not support the audio element.
                 </audio>
               </div>

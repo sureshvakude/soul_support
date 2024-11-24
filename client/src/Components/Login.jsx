@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import loginbg from '../assets/login-bg.jpg';
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -18,7 +19,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/user/login', {
+      const response = await fetch(`${serverUrl}/api/user/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
