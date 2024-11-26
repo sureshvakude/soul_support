@@ -1,5 +1,4 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
 const validator = require('validator');
@@ -9,6 +8,7 @@ const validator = require('validator');
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
+  // Validate input
   if (!name || !email || !password) {
     res.status(400);
     throw new Error('All fields are required');
@@ -19,6 +19,11 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Invalid email format');
   }
 
+  if (password.length < 8) {
+    res.status(400);
+    throw new Error('Password must be at least 8 characters long');
+  }
+
   // Check if user already exists
   const userExists = await User.findOne({ email });
   if (userExists) {
@@ -26,19 +31,11 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
 
-  // Hash the password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  // Create new user
-  const newUser = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-  });
+  // Create new user (password is hashed in the model's pre-save hook)
+  const newUser = await User.create({ name, email, password });
 
   // Generate JWT token
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  const token = generateToken(newUser._id);
 
   // Send response
   res.status(201).json({
@@ -54,27 +51,38 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  // Validate input
   if (!email || !password) {
     res.status(400);
     throw new Error('All fields are required');
   }
 
-  // Check if user exists
+  if (!validator.isEmail(email)) {
+    res.status(400);
+    throw new Error('Invalid email format');
+  }
+
+  // Check if user exists and is active
   const user = await User.findOne({ email });
   if (!user) {
     res.status(404);
     throw new Error('User not found');
   }
 
+  if (!user.isActive) {
+    res.status(403);
+    throw new Error('User account is deactivated. Please contact support.');
+  }
+
   // Verify password
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await user.isValidPassword(password);
   if (!isMatch) {
     res.status(400);
     throw new Error('Invalid credentials');
   }
 
   // Generate JWT token
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  const token = generateToken(user._id);
 
   // Send response
   res.status(200).json({
@@ -84,5 +92,10 @@ const loginUser = asyncHandler(async (req, res) => {
     token,
   });
 });
+
+// Helper function to generate JWT
+const generateToken = (userId) => {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
+};
 
 module.exports = { registerUser, loginUser };
